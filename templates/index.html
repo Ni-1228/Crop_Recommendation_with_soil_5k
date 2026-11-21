@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crop Recommendation System</title>
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #eef6ee 0%, #dcecd8 100%);
+      --card-bg: #ffffff;
+      --primary: #2e6f40;
+      --primary-hover: #235731;
+      --text-main: #1f2933;
+      --text-muted: #52606d;
+      --border: #cbd2d9;
+      --result-bg: #edf7ed;
+      --result-border: #81c784;
+      --error-bg: #fdecea;
+      --error-border: #e57373;
+      --error-text: #9b1c1c;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 720px;
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 14px 35px rgba(24, 58, 34, 0.12);
+    }
+
+    .header {
+      margin-bottom: 24px;
+      border-bottom: 1px solid #e4e7eb;
+      padding-bottom: 16px;
+    }
+
+    .header h1 {
+      font-size: 1.75rem;
+      color: var(--primary);
+      margin-bottom: 6px;
+    }
+
+    .header p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .grid-form {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .range-hint {
+      font-weight: 500;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 11px 13px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      color: var(--text-main);
+      background-color: #fafbfc;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--primary);
+      background-color: #ffffff;
+      box-shadow: 0 0 0 3px rgba(46, 111, 64, 0.15);
+    }
+
+    input.invalid {
+      border-color: var(--error-border);
+      background-color: #fff8f8;
+    }
+
+    .error-box {
+      grid-column: 1 / -1;
+      padding: 12px 16px;
+      border-radius: 8px;
+      background-color: var(--error-bg);
+      border: 1px solid var(--error-border);
+      color: var(--error-text);
+      font-size: 0.9rem;
+      font-weight: 500;
+      display: none;
+    }
+
+    .submit-btn {
+      grid-column: 1 / -1;
+      margin-top: 8px;
+      padding: 13px 20px;
+      border: none;
+      border-radius: 10px;
+      background-color: var(--primary);
+      color: #ffffff;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+
+    .submit-btn:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .submit-btn:active {
+      transform: scale(0.99);
+    }
+
+    .result-box {
+      margin-top: 24px;
+      padding: 16px 20px;
+      border-radius: 10px;
+      background-color: var(--result-bg);
+      border: 1px solid var(--result-border);
+      color: #1b5e20;
+      font-size: 1.05rem;
+      font-weight: 600;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+      }
+
+      .grid-form {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Crop Recommendation</h1>
+      <p>Enter soil nutrients, weather conditions, and soil type to predict the best crop.</p>
+    </div>
+
+    <!-- Adjust min/max below if your dataset has slightly wider or narrower bounds -->
+    <form class="grid-form" method="POST" id="cropForm" novalidate>
+      <div class="form-group">
+        <label for="N">Nitrogen (N) <span class="range-hint">[0 – 140]</span></label>
+        <input type="number" step="any" min="0" max="140" id="N" name="N" required />
+      </div>
+
+      <div class="form-group">
+        <label for="P">Phosphorus (P) <span class="range-hint">[5 – 145]</span></label>
+        <input type="number" step="any" min="5" max="145" id="P" name="P" required />
+      </div>
+
+      <div class="form-group">
+        <label for="K">Potassium (K) <span class="range-hint">[5 – 205]</span></label>
+        <input type="number" step="any" min="5" max="205" id="K" name="K" required />
+      </div>
+
+      <div class="form-group">
+        <label for="temperature">Temperature (°C) <span class="range-hint">[8 – 45]</span></label>
+        <input type="number" step="any" min="8" max="45" id="temperature" name="temperature" required />
+      </div>
+
+      <div class="form-group">
+        <label for="humidity">Humidity (%) <span class="range-hint">[14 – 100]</span></label>
+        <input type="number" step="any" min="14" max="100" id="humidity" name="humidity" required />
+      </div>
+
+      <div class="form-group">
+        <label for="ph">Soil pH <span class="range-hint">[3.5 – 10]</span></label>
+        <input type="number" step="any" min="3.5" max="10" id="ph" name="ph" required />
+      </div>
+
+      <div class="form-group">
+        <label for="rainfall">Rainfall (mm) <span class="range-hint">[0 – 300]</span></label>
+        <input type="number" step="any" min="0" max="300" id="rainfall" name="rainfall" required />
+      </div>
+
+      <div class="form-group">
+        <label for="soil">Soil Type</label>
+        <select id="soil" name="soil" required>
+          <option value="Alluvial">Alluvial</option>
+          <option value="Black">Black</option>
+          <option value="Clay">Clay</option>
+          <option value="Loamy">Loamy</option>
+          <option value="Red">Red</option>
+          <option value="Sandy">Sandy</option>
+        </select>
+      </div>
+
+      <div class="error-box" id="errorBox" role="alert"></div>
+
+      <button type="submit" class="submit-btn">Recommend Crop</button>
+    </form>
+
+    {% if crop %}
+    <div class="result-box">
+      Recommended Crop: {{ crop }}
+    </div>
+    {% endif %}
+  </div>
+
+  <script>
+    const form = document.getElementById("cropForm");
+    const errorBox = document.getElementById("errorBox");
+    const numericInputs = Array.from(form.querySelectorAll('input[type="number"]'));
+
+    form.addEventListener("submit", function (event) {
+      const errors = [];
+
+      numericInputs.forEach((input) => {
+        input.classList.remove("invalid");
+        const labelText = input.parentElement.querySelector("label").firstChild.textContent.trim();
+        const rawValue = input.value.trim();
+        const value = Number(rawValue);
+        const min = parseFloat(input.min);
+        const max = parseFloat(input.max);
+
+        if (rawValue === "" || Number.isNaN(value)) {
+          errors.push(`${labelText} is required.`);
+          input.classList.add("invalid");
+        } else if (value < min || value > max) {
+          errors.push(`${labelText} must be between ${min} and ${max}.`);
+          input.classList.add("invalid");
+        }
+      });
+
+      if (errors.length > 0) {
+        event.preventDefault();
+        errorBox.innerHTML = errors.join("<br>");
+        errorBox.style.display = "block";
+      } else {
+        errorBox.style.display = "none";
+      }
+    });
+  </script>
+</body>
+</html>
